@@ -1,5 +1,8 @@
 #include <Windows.h>
+#include <Shlwapi.h>
 #include "shared.h"
+
+#pragma comment(lib, "Shlwapi.lib")
 
 static bool gShouldExit = 0;
 
@@ -30,8 +33,13 @@ int CALLBACK WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance,
         return -1;
     }
 
+    // Use current exe directory to make DLL path
+    const LPCSTR DLL_NAME = "squeeze.dll";
+    CHAR dllPath[MAX_PATH] = {0};
+    GetModuleFileNameA(NULL, dllPath, MAX_PATH);
+    StrCpyA(PathFindFileNameA(dllPath), DLL_NAME);
+
     // Allocate memory in explorer.exe and write squeeze DLL path to it
-    LPCSTR dllPath = "D:\\Dev\\squeeze\\build\\squeeze.dll";
     SIZE_T dllPathSize = strlen(dllPath) + 1;
     SIZE_T dllPathNumBytesWritten;
     LPVOID lpRemoteBuf = VirtualAllocEx(hProcess, NULL, dllPathSize, MEM_COMMIT, PAGE_READWRITE);
